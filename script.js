@@ -47,10 +47,10 @@ button.addEventListener("click", function () {
             }
 
             messages.innerHTML += `
-            <p class="bot-message">
-                Javosh AI: ${data.answer}
-            </p>
-        `;
+                <p class="bot-message">
+                    Javosh AI: ${data.answer}
+                </p>
+            `;
 
             messages.scrollTop = messages.scrollHeight;
         })
@@ -66,11 +66,11 @@ button.addEventListener("click", function () {
             }
 
             messages.innerHTML += `
-            <p class="bot-message">
-                Javosh AI: Ошибка соединения с Python ❌
-            </p>
-        `;
+                <p class="bot-message">
+                    Javosh AI: Ошибка соединения с Python ❌
+                </p>
+            `;
 
             messages.scrollTop = messages.scrollHeight;
         });
-})
+});
