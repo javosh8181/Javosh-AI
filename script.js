@@ -12,25 +12,21 @@ button.addEventListener("click", function () {
         return;
     }
 
-    // Показываем сообщение пользователя
     messages.innerHTML += `
         <p class="user-message">Ты: ${text}</p>
     `;
 
     input.value = "";
 
-    // Показываем анимацию ожидания
     messages.innerHTML += `
         <p class="bot-message typing">
             Javosh AI: <span>•••</span>
         </p>
     `;
 
-    // Прокручиваем чат вниз
     messages.scrollTop = messages.scrollHeight;
 
-    // Отправляем вопрос Python
-    fetch("http://127.0.0.1:5000/ask", {
+    fetch("https://javosh-ai.onrender.com/ask", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -44,21 +40,18 @@ button.addEventListener("click", function () {
 
         .then(data => {
 
-            // Удаляем анимацию
             const typing = document.querySelector(".typing");
 
             if (typing) {
                 typing.remove();
             }
 
-            // Показываем ответ AI
             messages.innerHTML += `
-                <p class="bot-message">
-                    Javosh AI: ${data.answer}
-                </p>
-            `;
+            <p class="bot-message">
+                Javosh AI: ${data.answer}
+            </p>
+        `;
 
-            // Прокручиваем чат вниз
             messages.scrollTop = messages.scrollHeight;
         })
 
@@ -66,20 +59,18 @@ button.addEventListener("click", function () {
 
             console.error("Ошибка:", error);
 
-            // Удаляем анимацию
             const typing = document.querySelector(".typing");
 
             if (typing) {
                 typing.remove();
             }
 
-            // Показываем ошибку
             messages.innerHTML += `
-                <p class="bot-message">
-                    Javosh AI: Ошибка соединения с Python ❌
-                </p>
-            `;
+            <p class="bot-message">
+                Javosh AI: Ошибка соединения с Python ❌
+            </p>
+        `;
 
             messages.scrollTop = messages.scrollHeight;
         });
-});
+})
