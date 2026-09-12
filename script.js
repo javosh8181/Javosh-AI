@@ -6,29 +6,80 @@ const messages = document.querySelector(".messages");
 
 button.addEventListener("click", function () {
 
-    let text = input.value.toLowerCase().trim();
+    let text = input.value.trim();
 
-    messages.innerHTML += `<p class="user-message">Ты: ${input.value}</p>`;
+    if (text === "") {
+        return;
+    }
+
+    // Показываем сообщение пользователя
+    messages.innerHTML += `
+        <p class="user-message">Ты: ${text}</p>
+    `;
 
     input.value = "";
 
-    messages.innerHTML += `<p class="bot-message typing">Javosh AI: <span>•••</span></p>`;
+    // Показываем анимацию ожидания
+    messages.innerHTML += `
+        <p class="bot-message typing">
+            Javosh AI: <span>•••</span>
+        </p>
+    `;
 
-    setTimeout(function () {
+    // Прокручиваем чат вниз
+    messages.scrollTop = messages.scrollHeight;
 
-        document.querySelector(".typing").remove();
+    // Отправляем вопрос Python
+    fetch("http://127.0.0.1:5000/ask", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: text
+        })
+    })
 
-        if (text === "привет") {
-            messages.innerHTML += `<p class="bot-message">Javosh AI: Привет! 👋</p>`;
-        } else if (text === "как дела") {
-            messages.innerHTML += `<p class="bot-message">Javosh AI: У меня всё хорошо!</p>`;
-        } else if (text === "как тебя зовут") {
-            messages.innerHTML += `<p class="bot-message">Javosh AI: Меня зовут Javosh AI!</p>`;
-        } else if (text === "что ты умеешь") {
-            messages.innerHTML += `<p class="bot-message">Javosh AI: Я умею отвечать на легкие вопросы!</p>`;
-        } else {
-            messages.innerHTML += `<p class="bot-message">Javosh AI: Я пока не знаю этот вопрос.</p>`;
-        }
+        .then(response => response.json())
 
-    }, 1500);
+        .then(data => {
+
+            // Удаляем анимацию
+            const typing = document.querySelector(".typing");
+
+            if (typing) {
+                typing.remove();
+            }
+
+            // Показываем ответ AI
+            messages.innerHTML += `
+                <p class="bot-message">
+                    Javosh AI: ${data.answer}
+                </p>
+            `;
+
+            // Прокручиваем чат вниз
+            messages.scrollTop = messages.scrollHeight;
+        })
+
+        .catch(error => {
+
+            console.error("Ошибка:", error);
+
+            // Удаляем анимацию
+            const typing = document.querySelector(".typing");
+
+            if (typing) {
+                typing.remove();
+            }
+
+            // Показываем ошибку
+            messages.innerHTML += `
+                <p class="bot-message">
+                    Javosh AI: Ошибка соединения с Python ❌
+                </p>
+            `;
+
+            messages.scrollTop = messages.scrollHeight;
+        });
 });
