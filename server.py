@@ -1,18 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
+from google import genai
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 CORS(app)
 
-api_key = os.environ.get("OPENAI_API_KEY")
+api_key = os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
-    raise RuntimeError("OPENAI_API_KEY не найден")
+    raise RuntimeError("GEMINI_API_KEY не найден")
 
-client = OpenAI(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
 
 @app.route("/")
@@ -68,10 +68,7 @@ def ask():
 Текущее время: {current_time}
 """
 
-        response = client.responses.create(
-            model="gpt-5.6-luna",
-
-            instructions=f"""
+        prompt = f"""
 Ты — Javosh AI, личный AI-ассистент пользователя.
 
 Правила:
@@ -84,13 +81,18 @@ def ask():
 
 Текущая информация:
 {current_info}
-""",
 
-            input=text
+Сообщение пользователя:
+{text}
+"""
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=prompt
         )
 
         return jsonify({
-            "answer": response.output_text
+            "answer": response.text
         })
 
     except Exception as error:

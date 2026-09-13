@@ -26,51 +26,72 @@ button.addEventListener("click", function () {
 
     messages.scrollTop = messages.scrollHeight;
 
-    fetch("https://javosh-ai.onrender.com/ask", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: text
+    function sendMessage(text, attempt = 1) {
+
+        fetch("https://javosh-ai.onrender.com/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: text
+            })
         })
-    })
 
-        .then(response => response.json())
+            .then(response => {
 
-        .then(data => {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
 
-            const typing = document.querySelector(".typing");
+                return response.json();
+            })
 
-            if (typing) {
-                typing.remove();
-            }
+            .then(data => {
 
-            messages.innerHTML += `
+                const typing = document.querySelector(".typing");
+
+                if (typing) {
+                    typing.remove();
+                }
+
+                messages.innerHTML += `
                 <p class="bot-message">
                     Javosh AI: ${data.answer}
                 </p>
             `;
 
-            messages.scrollTop = messages.scrollHeight;
-        })
+                messages.scrollTop = messages.scrollHeight;
+            })
 
-        .catch(error => {
+            .catch(error => {
 
-            console.error("Ошибка:", error);
+                console.error("Ошибка:", error);
 
-            const typing = document.querySelector(".typing");
+                if (attempt < 3) {
 
-            if (typing) {
-                typing.remove();
-            }
+                    console.log("Повторная попытка:", attempt + 1);
 
-            messages.innerHTML += `
+                    setTimeout(function () {
+                        sendMessage(text, attempt + 1);
+                    }, 3000);
+
+                    return;
+                }
+
+                const typing = document.querySelector(".typing");
+
+                if (typing) {
+                    typing.remove();
+                }
+
+                messages.innerHTML += `
                 <p class="bot-message">
                     Javosh AI: Ошибка соединения с Python ❌
                 </p>
             `;
 
-            messages.scrollTop = messages.scrollHeight;
-        });
+                messages.scrollTop = messages.scrollHeight;
+            });
+    }
 });
